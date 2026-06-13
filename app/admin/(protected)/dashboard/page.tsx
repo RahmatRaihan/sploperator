@@ -2,6 +2,8 @@ import { createClient } from "@supabase/supabase-js";
 import { ClipboardList, Clock, Users, Calendar } from "lucide-react";
 import DashboardCharts from "./DashboardCharts";
 
+export const dynamic = 'force-dynamic';
+
 // Server component to fetch dashboard data
 export default async function AdminDashboard() {
   const supabaseAdmin = createClient(
