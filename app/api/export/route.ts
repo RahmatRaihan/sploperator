@@ -4,12 +4,21 @@ import ExcelJS from 'exceljs';
 import { format } from 'date-fns';
 import { id as localeId } from 'date-fns/locale';
 
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || '',
   process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
 );
 
 export async function GET(req: Request) {
+  // Proteksi Auth
+  const session = await getServerSession(authOptions);
+  if (!session || !session.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const { searchParams } = new URL(req.url);
   const bulan = searchParams.get('bulan');
   const tahun = searchParams.get('tahun');
