@@ -155,6 +155,7 @@ export default function OvertimeTable() {
               <th className="px-6 py-4 cursor-pointer hover:bg-slate-200 transition-colors" onClick={() => handleSort('divisi')}>
                 Divisi {sortBy === 'divisi' && (sortOrder === 'asc' ? '↑' : '↓')}
               </th>
+              <th className="px-6 py-4">Status Hari</th>
               <th className="px-6 py-4">Jam</th>
               <th className="px-6 py-4 text-center cursor-pointer hover:bg-slate-200 transition-colors" onClick={() => handleSort('jam_lembur')}>
                 Total Lembur {sortBy === 'jam_lembur' && (sortOrder === 'asc' ? '↑' : '↓')}
@@ -166,13 +167,13 @@ export default function OvertimeTable() {
           <tbody className="divide-y divide-slate-100">
             {loading ? (
               <tr>
-                <td colSpan={9} className="px-0 py-0">
-                  <SkeletonTable rows={5} columns={9} />
+                <td colSpan={10} className="px-0 py-0">
+                  <SkeletonTable rows={5} columns={10} />
                 </td>
               </tr>
             ) : data.length === 0 ? (
               <tr>
-                <td colSpan={9} className="px-6 py-12 text-center text-slate-500 font-medium">
+                <td colSpan={10} className="px-6 py-12 text-center text-slate-500 font-medium">
                   Tidak ada data lembur ditemukan.
                 </td>
               </tr>
@@ -184,6 +185,16 @@ export default function OvertimeTable() {
                   <td className="px-6 py-4">{row.nama}</td>
                   <td className="px-6 py-4 font-mono text-xs">{row.npk}</td>
                   <td className="px-6 py-4 text-slate-500">{row.divisi}</td>
+                  <td className="px-6 py-4">
+                    <span className={clsx(
+                      "px-2.5 py-1 rounded-md text-xs font-bold border",
+                      row.ket_hari === 'Hari Libur' 
+                        ? "bg-orange-50 text-orange-600 border-orange-200" 
+                        : "bg-blue-50 text-blue-600 border-blue-200"
+                    )}>
+                      {row.ket_hari}
+                    </span>
+                  </td>
                   <td className="px-6 py-4">
                     <span className="bg-slate-100 text-slate-700 px-2 py-1 rounded text-xs font-semibold border border-slate-200">
                       {row.start_time.substring(0, 5)} - {row.out_time.substring(0, 5)}
