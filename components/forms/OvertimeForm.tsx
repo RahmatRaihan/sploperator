@@ -7,6 +7,7 @@ import * as z from 'zod';
 import { Save, CheckCircle2, AlertCircle, Loader2, UploadCloud, FileImage } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { clsx } from 'clsx';
+import imageCompression from 'browser-image-compression';
 
 // Zod Schema
 const formSchema = z.object({
@@ -30,6 +31,7 @@ type FormDataType = z.infer<typeof formSchema>;
 
 export default function OvertimeForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCompressing, setIsCompressing] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [operators, setOperators] = useState<{nama: string, npk: string}[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -96,6 +98,39 @@ export default function OvertimeForm() {
       setValue('jam_lembur', diffHours.toString(), { shouldValidate: true });
     }
   }, [startTime, outTime, setValue]);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files ? e.target.files[0] : null;
+    if (!selectedFile) {
+      setFile(null);
+      return;
+    }
+
+    // Only compress images, ignore PDFs
+    if (selectedFile.type.startsWith('image/')) {
+      setIsCompressing(true);
+      try {
+        const options = {
+          maxSizeMB: 0.5, // Maksimal 500KB
+          maxWidthOrHeight: 1280,
+          useWebWorker: true,
+        };
+        const compressedFile = await imageCompression(selectedFile, options);
+        // Retain original name
+        const finalFile = new File([compressedFile], selectedFile.name, {
+          type: compressedFile.type,
+        });
+        setFile(finalFile);
+      } catch (error) {
+        console.error("Gagal kompresi:", error);
+        setFile(selectedFile); // Fallback ke file asli
+      } finally {
+        setIsCompressing(false);
+      }
+    } else {
+      setFile(selectedFile);
+    }
+  };
 
   const onSubmit = async (data: FormDataType) => {
     setIsSubmitting(true);
@@ -284,7 +319,7 @@ export default function OvertimeForm() {
               type="file" 
               accept="image/*,application/pdf"
               capture="environment" // trigger kamera jika di mobile
-              onChange={(e) => setFile(e.target.files ? e.target.files[0] : null)}
+              onChange={handleFileChange}
               className="hidden"
               id="file-upload"
             />
@@ -293,7 +328,12 @@ export default function OvertimeForm() {
               className="flex items-center justify-center w-full sm:w-1/2 md:w-1/3 px-4 py-3 border-2 border-dashed border-slate-300 rounded-xl cursor-pointer hover:bg-slate-50 hover:border-primary transition-all group"
             >
               <div className="flex flex-col items-center gap-1">
-                {file ? (
+                {isCompressing ? (
+                  <>
+                    <Loader2 className="text-primary animate-spin" size={24} />
+                    <span className="text-sm font-medium text-slate-600">Memproses...</span>
+                  </>
+                ) : file ? (
                   <>
                     <FileImage className="text-primary" size={24} />
                     <span className="text-sm font-medium text-slate-700 truncate max-w-[200px]">{file.name}</span>
@@ -313,11 +353,11 @@ export default function OvertimeForm() {
         <div className="pt-4 border-t border-slate-100">
           <button 
             type="submit" 
-            disabled={isSubmitting}
+            disabled={isSubmitting || isCompressing}
             className="w-full sm:w-auto px-8 py-3 bg-primary hover:bg-primary-light text-white font-semibold rounded-xl transition-all duration-300 disabled:opacity-70 flex items-center justify-center gap-2 shadow-sm shadow-primary/30"
           >
-            {isSubmitting ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
-            {isSubmitting ? 'Menyimpan...' : 'Simpan Data Lembur'}
+            {isSubmitting || isCompressing ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
+            {isSubmitting ? 'Menyimpan...' : isCompressing ? 'Memproses Foto...' : 'Simpan Data Lembur'}
           </button>
         </div>
       </form>
