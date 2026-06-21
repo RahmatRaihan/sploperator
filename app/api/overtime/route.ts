@@ -262,3 +262,30 @@ export async function PUT(req: Request) {
     return NextResponse.json({ error: error.message || "Gagal memperbarui data" }, { status: 500 });
   }
 }
+
+export async function PATCH(req: Request) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { id, is_validated } = await req.json();
+    
+    if (!id || typeof is_validated !== 'boolean') {
+      return NextResponse.json({ error: "Data tidak valid" }, { status: 400 });
+    }
+
+    const { error } = await supabaseAdmin
+      .from('overtime_records')
+      .update({ is_validated })
+      .eq('id', id);
+
+    if (error) throw error;
+
+    return NextResponse.json({ success: true, message: "Status validasi berhasil diperbarui" });
+  } catch (error: any) {
+    console.error('PATCH /api/overtime error:', error);
+    return NextResponse.json({ error: error.message || "Gagal memperbarui validasi" }, { status: 500 });
+  }
+}

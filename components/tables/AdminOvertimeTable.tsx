@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
-import { Search, Filter, Loader2, ChevronLeft, ChevronRight, Download, Trash2, Edit } from 'lucide-react';
+import { Search, Filter, Loader2, ChevronLeft, ChevronRight, Download, Trash2, Edit, CheckCircle } from 'lucide-react';
 import { clsx } from 'clsx';
 import { toast } from 'react-hot-toast';
 import EditOvertimeModal from '@/components/forms/EditOvertimeModal';
@@ -22,6 +22,7 @@ type OvertimeRecord = {
   ket_hari: string;
   keterangan: string | null;
   bukti_url: string | null;
+  is_validated: boolean;
 };
 
 export default function AdminOvertimeTable() {
@@ -41,6 +42,7 @@ export default function AdminOvertimeTable() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [editingRecord, setEditingRecord] = useState<OvertimeRecord | null>(null);
+  const [togglingValidationId, setTogglingValidationId] = useState<string | null>(null);
 
   // Debounce search
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -122,6 +124,35 @@ export default function AdminOvertimeTable() {
     }
   };
 
+  const handleValidationToggle = async (recordId: string, currentStatus: boolean) => {
+    setTogglingValidationId(recordId);
+    try {
+      const res = await fetch('/api/overtime', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: recordId, is_validated: !currentStatus })
+      });
+      if (res.ok) {
+        toast.success(!currentStatus ? "Data berhasil divalidasi" : "Validasi dibatalkan");
+        // Update local state tanpa refresh tabel
+        setData(prevData => 
+          prevData.map(record => 
+            record.id === recordId 
+              ? { ...record, is_validated: !currentStatus } 
+              : record
+          )
+        );
+      } else {
+        toast.error("Gagal mengubah status validasi");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Terjadi kesalahan jaringan");
+    } finally {
+      setTogglingValidationId(null);
+    }
+  };
+
   const handleExport = () => {
     // Navigate to export endpoint with current filters
     const queryParams = new URLSearchParams();
@@ -188,9 +219,9 @@ export default function AdminOvertimeTable() {
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto rounded-xl border border-slate-200">
+      <div className="overflow-auto max-h-[calc(100vh-250px)] rounded-xl border border-slate-200 shadow-inner">
         <table className="w-full text-left text-sm whitespace-nowrap">
-          <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold">
+          <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold sticky top-0 z-10 shadow-sm">
             <tr>
               <th className="px-6 py-4">No</th>
               <th className="px-6 py-4 text-center">Aksi</th>
@@ -212,18 +243,21 @@ export default function AdminOvertimeTable() {
               </th>
               <th className="px-6 py-4 text-center">Bukti SPL</th>
               <th className="px-6 py-4">Keterangan</th>
+              <th className="px-6 py-4 text-center cursor-pointer hover:bg-slate-200 transition-colors" onClick={() => handleSort('is_validated')}>
+                Status {sortBy === 'is_validated' && (sortOrder === 'asc' ? '↑' : '↓')}
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
             {loading ? (
               <tr>
-                <td colSpan={10} className="px-0 py-0">
-                  <SkeletonTable rows={5} columns={10} />
+                <td colSpan={11} className="px-0 py-0">
+                  <SkeletonTable rows={5} columns={11} />
                 </td>
               </tr>
             ) : data.length === 0 ? (
               <tr>
-                <td colSpan={10} className="px-6 py-12 text-center text-slate-500 font-medium">
+                <td colSpan={11} className="px-6 py-12 text-center text-slate-500 font-medium">
                   Tidak ada data lembur ditemukan.
                 </td>
               </tr>
@@ -278,6 +312,26 @@ export default function AdminOvertimeTable() {
                   </td>
                   <td className="px-6 py-4 max-w-[200px] truncate" title={row.keterangan || '-'}>
                     {row.keterangan || '-'}
+                  </td>
+                  <td className="px-6 py-4 text-center">
+                    <button
+                      onClick={() => handleValidationToggle(row.id, row.is_validated)}
+                      disabled={togglingValidationId === row.id}
+                      className={clsx(
+                        "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all",
+                        row.is_validated 
+                          ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-200" 
+                          : "bg-slate-100 text-slate-600 hover:bg-slate-200",
+                        togglingValidationId === row.id && "opacity-50 cursor-not-allowed"
+                      )}
+                    >
+                      {togglingValidationId === row.id ? (
+                        <Loader2 size={14} className="animate-spin" />
+                      ) : row.is_validated ? (
+                        <CheckCircle size={14} />
+                      ) : null}
+                      {row.is_validated ? "Tervalidasi" : "Validasi"}
+                    </button>
                   </td>
                 </tr>
               ))

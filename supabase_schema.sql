@@ -13,6 +13,7 @@ CREATE TABLE overtime_records (
   ket_hari      VARCHAR(20) NOT NULL CHECK (ket_hari IN ('Hari Libur', 'Hari Kerja')),
   keterangan    TEXT,
   bukti_url     TEXT,
+  is_validated  BOOLEAN DEFAULT FALSE,
   created_at    TIMESTAMPTZ DEFAULT NOW(),
   updated_at    TIMESTAMPTZ DEFAULT NOW()
 );
