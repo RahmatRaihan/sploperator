@@ -22,7 +22,7 @@ const formSchema = z.object({
   divisi: z.enum(["Thermal Power Plant - BTG", "Thermal Power Plant - C&CHS", "Thermal Power Plant - PDCA"], { message: "Pilih divisi" }),
   start_time: z.string().min(1, "Jam mulai wajib diisi"),
   out_time: z.string().min(1, "Jam selesai wajib diisi"),
-  jam_lembur: z.string().refine(val => ["4", "8", "12", "16"].includes(val), { message: "Lembur harus 4, 8, 12, atau 16 jam" }),
+  jam_lembur: z.string().min(1, { message: "Jam lembur harus diisi" }),
   ket_hari: z.enum(["Hari Kerja", "Hari Libur"], { message: "Pilih keterangan hari" }),
   keterangan: z.string().max(500, "Keterangan maksimal 500 karakter").optional(),
 });
@@ -94,7 +94,9 @@ export default function OvertimeForm() {
         mins2 += 24 * 60; // Shift malam melewati tengah malam
       }
       
-      const diffHours = Math.round((mins2 - mins1) / 60);
+      let diffHours = (mins2 - mins1) / 60;
+      // Membulatkan maksimal ke 2 angka desimal untuk kerapian
+      diffHours = Math.round(diffHours * 100) / 100;
       setValue('jam_lembur', diffHours.toString(), { shouldValidate: true });
     }
   }, [startTime, outTime, setValue]);

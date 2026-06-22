@@ -9,7 +9,7 @@ CREATE TABLE overtime_records (
   divisi        VARCHAR(100) NOT NULL DEFAULT 'Thermal Power Plant',
   start_time    TIME NOT NULL,
   out_time      TIME NOT NULL,
-  jam_lembur    INTEGER NOT NULL CHECK (jam_lembur IN (4, 8, 12, 16)),
+  jam_lembur    NUMERIC NOT NULL,
   ket_hari      VARCHAR(20) NOT NULL CHECK (ket_hari IN ('Hari Libur', 'Hari Kerja')),
   keterangan    TEXT,
   bukti_url     TEXT,

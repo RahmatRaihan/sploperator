@@ -14,7 +14,8 @@ export default function EditOvertimeModal({ record, onClose, onSuccess }: { reco
       let mins1 = h1 * 60 + m1;
       let mins2 = h2 * 60 + m2;
       if (mins2 <= mins1) mins2 += 24 * 60;
-      const diffHours = Math.round((mins2 - mins1) / 60);
+      let diffHours = (mins2 - mins1) / 60;
+      diffHours = Math.round(diffHours * 100) / 100;
       setFormData((prev: any) => ({ ...prev, jam_lembur: diffHours }));
     }
   }, [formData.start_time, formData.out_time]);
