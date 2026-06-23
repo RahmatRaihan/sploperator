@@ -29,6 +29,7 @@ export async function GET(req: Request) {
     let query = supabaseAdmin
       .from('overtime_records')
       .select('*')
+      .eq('is_validated', true)
       .order('tanggal', { ascending: true });
 
     if (nama) query = query.ilike('nama', `%${nama}%`);
