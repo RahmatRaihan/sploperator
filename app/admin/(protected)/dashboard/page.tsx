@@ -11,21 +11,10 @@ export default async function AdminDashboard() {
     process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
   );
 
-  const date = new Date();
-  const year = date.getFullYear();
-  const month = date.getMonth() + 1;
-  
-  const startOfMonth = `${year}-${String(month).padStart(2, '0')}-01`;
-  const endMonth = month === 12 ? 1 : month + 1;
-  const endYear = month === 12 ? year + 1 : year;
-  const endOfMonth = `${endYear}-${String(endMonth).padStart(2, '0')}-01`;
-
-  // Fetch current month data
+  // Fetch all data
   const { data: records, error } = await supabaseAdmin
     .from('overtime_records')
-    .select('*')
-    .gte('tanggal', startOfMonth)
-    .lt('tanggal', endOfMonth);
+    .select('*');
 
   if (error) {
     console.error("Dashboard fetch error:", error);
@@ -57,7 +46,7 @@ export default async function AdminDashboard() {
   ];
 
   const statCards = [
-    { title: "Total Lembur Bulan Ini", value: totalLembur, icon: ClipboardList, color: "bg-blue-100 text-blue-600" },
+    { title: "Total Seluruh Lembur", value: totalLembur, icon: ClipboardList, color: "bg-blue-100 text-blue-600" },
     { title: "Total Jam Lembur", value: `${totalJam} Jam`, icon: Clock, color: "bg-green-100 text-green-600" },
     { title: "Operator Aktif", value: `${uniqueOperators} Orang`, icon: Users, color: "bg-purple-100 text-purple-600" },
     { title: "Libur vs Kerja", value: `${hariLibur} : ${hariKerja}`, icon: Calendar, color: "bg-orange-100 text-orange-600" },
@@ -67,7 +56,7 @@ export default async function AdminDashboard() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-slate-800">Dashboard</h1>
-        <p className="text-slate-500 text-sm mt-1">Ringkasan aktivitas lembur bulan {date.toLocaleString('id-ID', { month: 'long', year: 'numeric' })}</p>
+        <p className="text-slate-500 text-sm mt-1">Ringkasan seluruh aktivitas lembur</p>
       </div>
 
       {/* Stats Grid */}
