@@ -28,8 +28,8 @@ export default function OvertimeTable() {
 
   // Filters
   const [searchQuery, setSearchQuery] = useState('');
-  const [month, setMonth] = useState((new Date().getMonth() + 1).toString());
-  const [year, setYear] = useState(new Date().getFullYear().toString());
+  const [month, setMonth] = useState('');
+  const [year, setYear] = useState('');
   const [page, setPage] = useState(1);
   const [sortBy, setSortBy] = useState('tanggal');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
