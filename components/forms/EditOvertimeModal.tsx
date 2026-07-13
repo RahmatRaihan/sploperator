@@ -64,7 +64,7 @@ export default function EditOvertimeModal({ record, onClose, onSuccess }: { reco
               <label className="block text-sm font-semibold text-slate-700 mb-1.5">Divisi</label>
               <select value={formData.divisi} onChange={e => setFormData({...formData, divisi: e.target.value})} required className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary/20 outline-none bg-white">
                 <option value="Thermal Power Plant - BTG">Thermal Power Plant - BTG</option>
-                <option value="Thermal Power Plant - C&CHS">Thermal Power Plant - C&CHS</option>
+                <option value="Thermal Power Plant - C&AHS">Thermal Power Plant - C&AHS</option>
                 <option value="Thermal Power Plant - PDCA">Thermal Power Plant - PDCA</option>
               </select>
             </div>

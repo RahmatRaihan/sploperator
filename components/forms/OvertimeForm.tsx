@@ -19,7 +19,7 @@ const formSchema = z.object({
   }, { message: "Tanggal tidak boleh melewati hari ini" }),
   nama: z.string().min(3, "Nama minimal 3 karakter"),
   npk: z.string().regex(/^\d+$/, "NPK harus berupa angka").min(1, "NPK wajib diisi"),
-  divisi: z.enum(["Thermal Power Plant - BTG", "Thermal Power Plant - C&CHS", "Thermal Power Plant - PDCA"], { message: "Pilih divisi" }),
+  divisi: z.enum(["Thermal Power Plant - BTG", "Thermal Power Plant - C&AHS", "Thermal Power Plant - PDCA"], { message: "Pilih divisi" }),
   start_time: z.string().min(1, "Jam mulai wajib diisi"),
   out_time: z.string().min(1, "Jam selesai wajib diisi"),
   jam_lembur: z.string().min(1, { message: "Jam lembur harus diisi" }),
@@ -198,7 +198,7 @@ export default function OvertimeForm() {
             >
               <option value="">Pilih Divisi...</option>
               <option value="Thermal Power Plant - BTG">Thermal Power Plant - BTG</option>
-              <option value="Thermal Power Plant - C&CHS">Thermal Power Plant - C&CHS</option>
+              <option value="Thermal Power Plant - C&AHS">Thermal Power Plant - C&AHS</option>
               <option value="Thermal Power Plant - PDCA">Thermal Power Plant - PDCA</option>
             </select>
             {errors.divisi && <p className="text-red-500 text-xs mt-1.5 font-medium">{errors.divisi.message}</p>}
