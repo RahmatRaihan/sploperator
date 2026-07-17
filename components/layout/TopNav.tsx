@@ -11,7 +11,7 @@ export default function TopNav({ mode = 'operator' }: { mode?: 'operator' | 'adm
         <div className="flex items-center gap-3 md:gap-4">
           <Link href="/" className="flex items-center justify-center shrink-0">
             <img 
-              src="https://www.bai.id/bai-logo.png" 
+              src="/bai-logo.png" 
               alt="PT BAI Logo" 
               className="h-8 md:h-10 w-auto object-contain drop-shadow-sm"
             />
