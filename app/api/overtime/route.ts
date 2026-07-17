@@ -88,8 +88,8 @@ export async function POST(req: Request) {
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
-  const bulan = searchParams.get('bulan');
-  const tahun = searchParams.get('tahun');
+  const startDate = searchParams.get('start_date');
+  const endDate = searchParams.get('end_date');
   const nama = searchParams.get('nama');
   const npk = searchParams.get('npk');
   const page = parseInt(searchParams.get('page') || '1');
@@ -108,17 +108,11 @@ export async function GET(req: Request) {
     if (npk) {
       query = query.eq('npk', npk);
     }
-    if (bulan && tahun) {
-      const startDate = `${tahun}-${bulan.padStart(2, '0')}-01`;
-      const endMonth = parseInt(bulan) === 12 ? 1 : parseInt(bulan) + 1;
-      const endYear = parseInt(bulan) === 12 ? parseInt(tahun) + 1 : parseInt(tahun);
-      const endDate = `${endYear}-${String(endMonth).padStart(2, '0')}-01`;
-      
-      query = query.gte('tanggal', startDate).lt('tanggal', endDate);
-    } else if (tahun) {
-      const startDate = `${tahun}-01-01`;
-      const endDate = `${parseInt(tahun) + 1}-01-01`;
-      query = query.gte('tanggal', startDate).lt('tanggal', endDate);
+    if (startDate) {
+      query = query.gte('tanggal', startDate);
+    }
+    if (endDate) {
+      query = query.lte('tanggal', endDate);
     }
 
     const from = (page - 1) * limit;

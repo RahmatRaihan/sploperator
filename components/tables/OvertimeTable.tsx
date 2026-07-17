@@ -28,8 +28,8 @@ export default function OvertimeTable() {
 
   // Filters
   const [searchQuery, setSearchQuery] = useState('');
-  const [month, setMonth] = useState('');
-  const [year, setYear] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [page, setPage] = useState(1);
   const [sortBy, setSortBy] = useState('tanggal');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
@@ -63,8 +63,8 @@ export default function OvertimeTable() {
           }
         }
         
-        if (month) queryParams.append('bulan', month);
-        if (year) queryParams.append('tahun', year);
+        if (startDate) queryParams.append('start_date', startDate);
+        if (endDate) queryParams.append('end_date', endDate);
 
         const res = await fetch(`/api/overtime?${queryParams.toString()}`);
         const result = await res.json();
@@ -81,7 +81,7 @@ export default function OvertimeTable() {
     };
 
     fetchData();
-  }, [debouncedSearch, month, year, page, sortBy, sortOrder]);
+  }, [debouncedSearch, startDate, endDate, page, sortBy, sortOrder]);
 
   const handleSort = (column: string) => {
     if (sortBy === column) {
@@ -109,31 +109,22 @@ export default function OvertimeTable() {
           />
         </div>
         
-        <div className="flex gap-3 w-full md:w-auto">
-          <div className="relative w-1/2 md:w-auto">
-            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-            <select 
-              value={month}
-              onChange={(e) => { setMonth(e.target.value); setPage(1); }}
-              className="w-full pl-9 pr-8 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary/20 outline-none appearance-none bg-white font-medium text-slate-700"
-            >
-              <option value="">Semua Bulan</option>
-              {Array.from({length: 12}, (_, i) => i + 1).map(m => (
-                <option key={m} value={m}>{format(new Date(2026, m - 1, 1), 'MMMM', { locale: id })}</option>
-              ))}
-            </select>
-          </div>
-          
-          <select 
-            value={year}
-            onChange={(e) => { setYear(e.target.value); setPage(1); }}
-            className="w-1/2 md:w-auto px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary/20 outline-none bg-white font-medium text-slate-700"
-          >
-            <option value="">Semua Tahun</option>
-            {[2025, 2026, 2027].map(y => (
-              <option key={y} value={y}>{y}</option>
-            ))}
-          </select>
+        <div className="flex items-center gap-2 w-full md:w-auto">
+          <input 
+            type="date" 
+            value={startDate}
+            onChange={(e) => { setStartDate(e.target.value); setPage(1); }}
+            className="w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm text-slate-600"
+            title="Tanggal Awal"
+          />
+          <span className="text-slate-400 text-sm font-medium">s/d</span>
+          <input 
+            type="date" 
+            value={endDate}
+            onChange={(e) => { setEndDate(e.target.value); setPage(1); }}
+            className="w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm text-slate-600"
+            title="Tanggal Akhir"
+          />
         </div>
       </div>
 

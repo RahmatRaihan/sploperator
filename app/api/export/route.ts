@@ -20,36 +20,42 @@ export async function GET(req: Request) {
   }
 
   const { searchParams } = new URL(req.url);
-  const bulan = searchParams.get('bulan');
-  const tahun = searchParams.get('tahun');
+  const startDate = searchParams.get('start_date');
+  const endDate = searchParams.get('end_date');
   const nama = searchParams.get('nama');
   const npk = searchParams.get('npk');
 
   try {
+    const includeAll = searchParams.get('include_all') === 'true';
+
     let query = supabaseAdmin
       .from('overtime_records')
-      .select('*')
-      .eq('is_validated', true)
-      .order('tanggal', { ascending: true });
+      .select('*');
+      
+    if (!includeAll) {
+      query = query.eq('is_validated', true);
+    }
+    
+    query = query.order('tanggal', { ascending: true });
 
     if (nama) query = query.ilike('nama', `%${nama}%`);
     if (npk) query = query.eq('npk', npk);
     
     let periodeText = "Semua Waktu";
     
-    if (bulan && tahun) {
-      const startDate = `${tahun}-${bulan.padStart(2, '0')}-01`;
-      const endMonth = parseInt(bulan) === 12 ? 1 : parseInt(bulan) + 1;
-      const endYear = parseInt(bulan) === 12 ? parseInt(tahun) + 1 : parseInt(tahun);
-      const endDate = `${endYear}-${String(endMonth).padStart(2, '0')}-01`;
-      
-      query = query.gte('tanggal', startDate).lt('tanggal', endDate);
-      periodeText = `${format(new Date(parseInt(tahun), parseInt(bulan) - 1, 1), 'MMMM', { locale: localeId })} ${tahun}`;
-    } else if (tahun) {
-      const startDate = `${tahun}-01-01`;
-      const endDate = `${parseInt(tahun) + 1}-01-01`;
-      query = query.gte('tanggal', startDate).lt('tanggal', endDate);
-      periodeText = `Tahun ${tahun}`;
+    if (startDate) {
+      query = query.gte('tanggal', startDate);
+    }
+    if (endDate) {
+      query = query.lte('tanggal', endDate);
+    }
+    
+    if (startDate && endDate) {
+      periodeText = `${format(new Date(startDate), 'dd MMM yyyy', { locale: localeId })} - ${format(new Date(endDate), 'dd MMM yyyy', { locale: localeId })}`;
+    } else if (startDate) {
+      periodeText = `Sejak ${format(new Date(startDate), 'dd MMM yyyy', { locale: localeId })}`;
+    } else if (endDate) {
+      periodeText = `Hingga ${format(new Date(endDate), 'dd MMM yyyy', { locale: localeId })}`;
     }
 
     const { data, error } = await query;
@@ -165,7 +171,8 @@ export async function GET(req: Request) {
     // Generate file
     const buffer = await workbook.xlsx.writeBuffer();
 
-    const filename = `Rekapan Lembur TPP_${bulan ? format(new Date(parseInt(tahun!), parseInt(bulan) - 1, 1), 'MMMM') : 'Semua'}_${tahun || 'All'}.xlsx`;
+    const safePeriodeText = periodeText.replace(/[^a-zA-Z0-9 -]/g, '').replace(/ /g, '_');
+    const filename = `Rekapan_Lembur_TPP_${safePeriodeText}.xlsx`;
 
     return new NextResponse(buffer, {
       status: 200,

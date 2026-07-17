@@ -36,7 +36,7 @@ export default function DashboardCharts({ barData, pieData }: { barData: any[], 
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <div className="h-full flex items-center justify-center text-slate-400">Belum ada data lembur bulan ini.</div>
+            <div className="h-full flex items-center justify-center text-slate-400">Belum ada data lembur yang sesuai kriteria.</div>
           )}
         </div>
       </div>
@@ -68,7 +68,7 @@ export default function DashboardCharts({ barData, pieData }: { barData: any[], 
               </PieChart>
             </ResponsiveContainer>
           ) : (
-            <div className="h-full flex items-center justify-center text-slate-400">Belum ada data lembur bulan ini.</div>
+            <div className="h-full flex items-center justify-center text-slate-400">Belum ada data lembur yang sesuai kriteria.</div>
           )}
         </div>
       </div>

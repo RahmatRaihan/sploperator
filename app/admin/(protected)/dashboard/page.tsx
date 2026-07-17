@@ -1,6 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { ClipboardList, Clock, Users, Calendar } from "lucide-react";
-import DashboardCharts from "./DashboardCharts";
+import DashboardClient from "./DashboardClient";
 
 export const dynamic = 'force-dynamic';
 
@@ -21,61 +20,5 @@ export default async function AdminDashboard() {
     return <div>Terjadi kesalahan saat memuat data dashboard.</div>;
   }
 
-  // Calculate stats
-  const totalLembur = records?.length || 0;
-  const totalJam = records?.reduce((sum, r) => sum + (r.jam_lembur || 0), 0) || 0;
-  const uniqueOperators = new Set(records?.map(r => r.npk)).size;
-  
-  const hariLibur = records?.filter(r => r.ket_hari === 'Hari Libur').length || 0;
-  const hariKerja = records?.filter(r => r.ket_hari === 'Hari Kerja').length || 0;
-
-  // Prepare chart data
-  // 1. Jam lembur per operator
-  const operatorMap = new Map<string, number>();
-  records?.forEach(r => {
-    operatorMap.set(r.nama, (operatorMap.get(r.nama) || 0) + r.jam_lembur);
-  });
-  const barChartData = Array.from(operatorMap, ([name, jam]) => ({ name, jam }))
-    .sort((a, b) => b.jam - a.jam)
-    .slice(0, 10); // Top 10
-
-  // 2. Pie chart data
-  const pieChartData = [
-    { name: 'Hari Libur', value: hariLibur, fill: '#ea580c' },
-    { name: 'Hari Kerja', value: hariKerja, fill: '#1d4ed8' },
-  ];
-
-  const statCards = [
-    { title: "Total Seluruh Lembur", value: totalLembur, icon: ClipboardList, color: "bg-blue-100 text-blue-600" },
-    { title: "Total Jam Lembur", value: `${totalJam} Jam`, icon: Clock, color: "bg-green-100 text-green-600" },
-    { title: "Operator Aktif", value: `${uniqueOperators} Orang`, icon: Users, color: "bg-purple-100 text-purple-600" },
-    { title: "Libur vs Kerja", value: `${hariLibur} : ${hariKerja}`, icon: Calendar, color: "bg-orange-100 text-orange-600" },
-  ];
-
-  return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-800">Dashboard</h1>
-        <p className="text-slate-500 text-sm mt-1">Ringkasan seluruh aktivitas lembur</p>
-      </div>
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-        {statCards.map((stat, i) => (
-          <div key={i} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-4">
-            <div className={`p-4 rounded-xl ${stat.color}`}>
-              <stat.icon size={24} />
-            </div>
-            <div>
-              <p className="text-slate-500 text-sm font-medium">{stat.title}</p>
-              <h3 className="text-2xl font-bold text-slate-800 mt-1">{stat.value}</h3>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Charts (Client Component) */}
-      <DashboardCharts barData={barChartData} pieData={pieChartData} />
-    </div>
-  );
+  return <DashboardClient initialRecords={records || []} />;
 }
