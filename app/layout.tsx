@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import "./globals.css";
@@ -8,9 +8,22 @@ const inter = Inter({
   subsets: ["latin"],
 });
 
+export const viewport: Viewport = {
+  themeColor: "#1d4ed8",
+};
+
 export const metadata: Metadata = {
   title: "Rekapan Lembur TPP - PT Borneo Alumina Indonesia",
   description: "Aplikasi Rekapan Lembur Operator Divisi Thermal Power Plant PT Borneo Alumina Indonesia",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Lembur TPP",
+  },
+  formatDetection: {
+    telephone: false,
+  },
 };
 
 export default function RootLayout({
